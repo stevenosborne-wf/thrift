@@ -122,6 +122,7 @@ if test "$enable_libs" = "no"; then
   with_perl="no"
   with_php="no"
   with_php_extension="no"
+  with_dart="no"
   with_erlang="no"
   with_go="no"
   with_d="no"
@@ -324,6 +325,16 @@ AM_CONDITIONAL(WITH_PHP_EXTENSION, [test "$have_php_extension" = "yes"])
 
 AC_PATH_PROG([PHPUNIT], [phpunit])
 AM_CONDITIONAL(HAVE_PHPUNIT, [test "x$PHPUNIT" != "x"])
+
+AX_THRIFT_LIB(dart, [DART], yes)
+if test "$with_dart" = "yes"; then
+   AC_PATH_PROG([DART], [dart])
+   AC_PATH_PROG([DARTPUB], [pub])
+   if test "x$DART" != "x" -a "x$DARTPUB" != "x"; then
+    have_dart="yes"
+  fi
+fi
+AM_CONDITIONAL(WITH_DART, [test "$have_dart" = "yes"])
 
 AX_THRIFT_LIB(ruby, [Ruby], yes)
 have_ruby=no
