@@ -34,18 +34,11 @@ compiler:
 
 before_install:
   - sh build/travis/installCXXDependencies.sh
-  - if [ "$ALL_DEPS" != "no" ] ; then sh build/travis/installDependencies.sh 1> /dev/null ; fi
-  - if [ "$ALL_DEPS" != "no" ] ; then export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/1.20/bin:$PATH ; fi
-  - if [ "$ALL_DEPS" != "no" ] ; then cabal update ; fi
-  # Disabling any cabal concurrent jobs to workaround GHC crashes due to out of memory.
-  # We can safely remove this to speed up cabal install, once Travis infrastructure is upgraded.
-  - if [ "$ALL_DEPS" != "no" ] ; then sed -i 's/^\s*jobs\s*:\s*\$ncpus\s*$/jobs:1/g' $HOME/.cabal/config && cat $HOME/.cabal/config | grep jobs ; fi
-
 
 script:
-  - if [ "x$CONFIG" != "xnone" ] ; then sh bootstrap.sh ; fi
-  - if [ "x$CONFIG" != "xnone" ] ; then sh configure $CONFIG ; fi
-  - if [ "x$CONFIG" != "xnone" ] ; then make $MAKE_TARGET -j2 ; fi
+  - sh bootstrap.sh
+  - sh configure $CONFIG
+  - make
 
 after_failure:
   - if [ "x$ERROR_LOG" != "xnone" ] ; then cat $ERROR_LOG ; fi
@@ -54,15 +47,12 @@ env:
   global:
     - TEST_NAME=""
     - CONFIG="none"
-    - MAKE_TARGET="check"
-    - ALL_DEPS="no"
     - GHCVER=7.8.3
     - ERROR_LOG="none"
 
   matrix:
     - TEST_NAME="Small Set"
       CONFIG="--without-perl --without-php --without-cpp --without-nodejs --enable-libs=no --enable-tests=no --enable-tutorial=no"
-      ALL_DEPS="yes"
 
 addons:
     artifacts: true
