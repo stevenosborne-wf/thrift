@@ -184,5 +184,8 @@ matrix:
        - dpkg -l
        - uname -a
 
+addons:
+    artifacts: true
+
 # TODO make it perfect ;-r
 #
