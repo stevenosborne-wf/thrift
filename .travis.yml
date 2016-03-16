@@ -19,43 +19,31 @@
 
 # build Apache Thrift on Travis CI - https://travis-ci.org/
 
-language: cpp
-
 sudo: required
+dist: trusty
 
-cache:
- - apt
- - npm
- - maven
+services:
+  - docker
 
-compiler:
-  - clang
-  - gcc
-
-before_install:
-  - sh build/travis/installCXXDependencies.sh
+install:
+  - travis_wait docker pull thrift/$DISTRO:latest || true
+  - cp -r ./build/docker/scripts/*.sh ./build/docker/$DISTRO/scripts/
+  - travis_retry travis_wait docker build -q -t thrift-build build/docker/$DISTRO
 
 script:
-  - sh bootstrap.sh
-  - sh configure $CONFIG
-  - make
-
-after_failure:
-  - if [ "x$ERROR_LOG" != "xnone" ] ; then cat $ERROR_LOG ; fi
+  - docker run -e BUILD_LIBS="$BUILD_LIBS" $BUILD_ENV -v $(pwd):/thrift/src -it thrift-build $BUILD_CMD $BUILD_ARG
 
 env:
   global:
     - TEST_NAME=""
-    - CONFIG="none"
-    - GHCVER=7.8.3
-    - ERROR_LOG="none"
+    - BUILD_CMD="none"
+    - BUILD_ARG=""
+    - BUILD_ENV="-e CC=clang -e CXX=clang++"
+    - DISTRO=ubuntu
+    - BUILD_LIBS="CPP C_GLIB HASKELL JAVA PYTHON TESTING TUTORIALS"  # only meaningful for CMake builds
 
   matrix:
-    - TEST_NAME="Small Set"
-      CONFIG="--without-perl --without-php --without-cpp --without-nodejs --enable-libs=no --enable-tests=no --enable-tutorial=no"
-
-addons:
-    artifacts: true
-
-# TODO make it perfect ;-r
-#
+    # Autotools builds
+    - TEST_NAME="Java Python Go Dart (automake)"
+      BUILD_CMD="../autotools.sh"
+      BUILD_ARG="--without-cpp --without-haskell --without-c_glib --without-csharp --without-d --without-erlang --without-haxe --without-lua --without-nodejs --without-perl --without-php --without-php_extension --without-ruby --enable-libs=no --enable-tests=no --enable-tutorial=no"

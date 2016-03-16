@@ -18,13 +18,19 @@
 #
 
 
-#  ANT_FOUND - system has Ant
-#  Ant_EXECUTABLE - the Ant executable
+#  GHC_FOUND - system has GHC
+#  GHC - the GHC executable
+#  RUN_HASKELL_FOUND - system has runhaskell
+#  RUN_HASKELL - the runhaskell executable
 #
-# It will search the environment variable ANT_HOME if it is set
+# It will search the environment variable GHC_HOME if it is set
 
 include(FindPackageHandleStandardArgs)
 
-find_program(Ant_EXECUTABLE NAMES ant PATHS $ENV{ANT_HOME}/bin)
-find_package_handle_standard_args(Ant DEFAULT_MSG Ant_EXECUTABLE)
-mark_as_advanced(Ant_EXECUTABLE)
+find_program(GHC NAMES ghc PATHS $ENV{GHC_HOME}/bin)
+find_package_handle_standard_args(GHC DEFAULT_MSG GHC)
+mark_as_advanced(GHC)
+
+find_program(RUN_HASKELL NAMES runhaskell PATHS $ENV{GHC_HOME}/bin)
+find_package_handle_standard_args(RUN_HASKELL DEFAULT_MSG RUN_HASKELL)
+mark_as_advanced(RUN_HASKELL)

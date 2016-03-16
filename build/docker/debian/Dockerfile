@@ -15,7 +15,7 @@
 # Known missing client libraries:
 #  - None
 
-FROM ubuntu:trusty
+FROM debian:jessie
 MAINTAINER Apache Thrift <dev@thrift.apache.org>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -36,11 +36,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       git \
       libtool \
       make \
-      ninja-build \
       pkg-config
 
 # C++ dependencies
-# libevent and OpenSSL are needed by D too
 RUN apt-get update && apt-get install -y --no-install-recommends \
       libboost-dev \
       libboost-filesystem-dev \
@@ -63,18 +61,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && update-java-alternatives -s java-1.7.0-openjdk-amd64
 
 # Python dependencies
-# TODO:
-# Install twisted and zope.interface via pip. we need twisted at ./configure time, otherwise
-# py.twisted tests are skipped.
 RUN apt-get update && apt-get install -y --no-install-recommends \
       python-all \
-      python-all-dbg \
       python-all-dev \
-      python-pip \
+      python-all-dbg \
       python-setuptools \
       python-support \
       python-twisted \
       python-zope.interface \
+      python-pip \
       python3-dev \
       python3-pip
 
@@ -105,9 +100,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends libglib2.0-dev
 
 # Erlang dependencies
-RUN echo 'deb http://packages.erlang-solutions.com/debian trusty contrib' > /etc/apt/sources.list.d/erlang_solutions.list && \
-    curl -sSL http://packages.erlang-solutions.com/debian/erlang_solutions.asc | apt-key add - && \
-    apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
       erlang-base \
       erlang-eunit \
       erlang-dev \
@@ -118,17 +111,11 @@ RUN echo 'deb http://packages.erlang-solutions.com/debian trusty contrib' > /etc
 RUN curl -sSL https://storage.googleapis.com/golang/go1.4.3.linux-amd64.tar.gz | tar -C /usr/local/ -xz
 ENV PATH /usr/local/go/bin:$PATH
 
+
 # Haskell dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
       ghc \
       cabal-install
-# Packages tend to be overwritten by build process since we're currently calling cabal update
-#       libghc-binary-dev \
-#       libghc-network-dev \
-#       libghc-http-dev \
-#       libghc-hashable-dev \
-#       libghc-unordered-containers-dev \
-#       libghc-vector-dev
 
 # Haxe
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -190,7 +177,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends \
       mingw32 \
       mingw32-binutils \
-      mingw32-runtime \
+#      mingw32-runtime \
       nsis
 
 # Clean up
@@ -199,6 +186,9 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
+
+# Force utf8 locale to successfully build Haskell tf-random
+ENV LC_ALL C.UTF-8
 
 ENV THRIFT_ROOT /thrift
 RUN mkdir -p $THRIFT_ROOT/src
