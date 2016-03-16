@@ -53,7 +53,6 @@ after_failure:
 env:
   global:
     - TEST_NAME=""
-    - CMAKE_CONFIG="none"
     - CONFIG="none"
     - MAKE_TARGET="check"
     - ALL_DEPS="no"
@@ -62,7 +61,7 @@ env:
 
   matrix:
     - TEST_NAME="Small Set"
-      CONFIG="--without-erlang --without-haskell --without-lua --without-d --without-ruby --without-nodejs --enable-libs=no --enable-tests=no --enable-tutorial=no"
+      CONFIG="--without-perl --without-php --without-cpp --without-nodejs --enable-libs=no --enable-tests=no --enable-tutorial=no"
       ALL_DEPS="yes"
 
 addons:
