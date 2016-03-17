@@ -51,4 +51,4 @@ env:
 addons:
     artifacts: 
         paths: 
-        - /usr/local/bin
+        - /usr/local/bin/thrift
