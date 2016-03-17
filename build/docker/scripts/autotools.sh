@@ -5,3 +5,4 @@ set -ev
 ./configure $*
 make -j3
 make install
+which thrift
