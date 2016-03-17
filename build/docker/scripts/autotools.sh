@@ -3,4 +3,5 @@ set -ev
 
 ./bootstrap.sh
 ./configure $*
-make check -j3
+make -j3
+make install

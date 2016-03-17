@@ -47,3 +47,6 @@ env:
     - TEST_NAME="Java Python Go Dart (automake)"
       BUILD_CMD="../autotools.sh"
       BUILD_ARG="--without-cpp --without-haskell --without-c_glib --without-csharp --without-d --without-erlang --without-haxe --without-lua --without-nodejs --without-perl --without-php --without-php_extension --without-ruby --enable-libs=no --enable-tests=no --enable-tutorial=no"
+
+addons:
+    artifacts: true
