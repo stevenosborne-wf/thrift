@@ -50,3 +50,5 @@ env:
 
 addons:
     artifacts: true
+        paths: 
+        - $(which thrift)
