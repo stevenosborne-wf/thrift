@@ -59,6 +59,12 @@ public:
     iter = parsed_options.find("slots");
     gen_slots_ = (iter != parsed_options.end());
 
+    iter = parsed_options.find("package_prefix");
+    if (iter != parsed_options.end()) {
+      package_prefix_ = iter->second;
+    }
+
+
     iter = parsed_options.find("dynamic");
     gen_dynamic_ = (iter != parsed_options.end());
 
@@ -229,7 +235,7 @@ public:
     return sub_namespace == "twisted";
   }
 
-  static std::string get_real_py_module(const t_program* program, bool gen_twisted) {
+  static std::string get_real_py_module(const t_program* program, bool gen_twisted, std::string package_dir="") {
     if (gen_twisted) {
       std::string twisted_module = program->get_namespace("py.twisted");
       if (!twisted_module.empty()) {
@@ -241,7 +247,7 @@ public:
     if (real_module.empty()) {
       return program->get_name();
     }
-    return real_module;
+    return package_dir + real_module;
   }
 
 private:
@@ -285,6 +291,8 @@ private:
    * eg. # -*- coding: utf-8 -*-
    */
   string coding_;
+
+  string package_prefix_;
 
   /**
    * File streams
@@ -363,7 +371,7 @@ string t_py_generator::render_includes() {
   const vector<t_program*>& includes = program_->get_includes();
   string result = "";
   for (size_t i = 0; i < includes.size(); ++i) {
-    result += "import " + get_real_py_module(includes[i], gen_twisted_) + ".ttypes\n";
+    result += "import " + get_real_py_module(includes[i], gen_twisted_, package_prefix_) + ".ttypes\n";
   }
   if (includes.size() > 0) {
     result += "\n";
@@ -956,7 +964,7 @@ void t_py_generator::generate_service(t_service* tservice) {
 
   if (tservice->get_extends() != NULL) {
     f_service_ << "import "
-               << get_real_py_module(tservice->get_extends()->get_program(), gen_twisted_) << "."
+               << get_real_py_module(tservice->get_extends()->get_program(), gen_twisted_, package_prefix_) << "."
                << tservice->get_extends()->get_name() << endl;
   }
 
@@ -2368,10 +2376,10 @@ string t_py_generator::type_name(t_type* ttype) {
 
   t_program* program = ttype->get_program();
   if (ttype->is_service()) {
-    return get_real_py_module(program, gen_twisted_) + "." + ttype->get_name();
+    return get_real_py_module(program, gen_twisted_, package_prefix_) + "." + ttype->get_name();
   }
   if (program != NULL && program != program_) {
-    return get_real_py_module(program, gen_twisted_) + ".ttypes." + ttype->get_name();
+    return get_real_py_module(program, gen_twisted_, package_prefix_) + ".ttypes." + ttype->get_name();
   }
   return ttype->get_name();
 }
@@ -2458,4 +2466,6 @@ THRIFT_REGISTER_GENERATOR(
     "    dynbase=CLS      Derive generated classes from class CLS instead of TBase.\n"
     "    dynexc=CLS       Derive generated exceptions from CLS instead of TExceptionBase.\n"
     "    dynimport='from foo.bar import CLS'\n"
-    "                     Add an import line to generated code to find the dynbase class.\n")
+    "                     Add an import line to generated code to find the dynbase class.\n"
+    "    package_prefix='top.package.'\n"
+    "                     Package prefix for generated files.\n")
