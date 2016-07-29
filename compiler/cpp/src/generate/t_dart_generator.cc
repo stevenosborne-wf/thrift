@@ -544,6 +544,7 @@ void t_dart_generator::generate_consts(std::vector<t_const*> consts) {
 
   // Print header
   f_consts << autogen_comment() << dart_library(file_name) << endl;
+  f_consts << dart_thrift_imports() << endl;
 
   export_class_to_library(file_name, class_name);
   indent(f_consts) << "class " << class_name;
@@ -594,8 +595,8 @@ void t_dart_generator::print_const_value(std::ofstream& out,
     vector<t_field*>::const_iterator f_iter;
     const map<t_const_value*, t_const_value*>& val = value->get_map();
     map<t_const_value*, t_const_value*>::const_iterator v_iter;
-    out << type_name(type) << " " << name << " = new " << type_name(type) << "();"
-        << endl;
+    out << type_name(type) << " " << name << " = new " << type_name(type) << "()";
+    indent_up();
     for (v_iter = val.begin(); v_iter != val.end(); ++v_iter) {
       t_type* field_type = NULL;
       for (f_iter = fields.begin(); f_iter != fields.end(); ++f_iter) {
@@ -607,10 +608,11 @@ void t_dart_generator::print_const_value(std::ofstream& out,
         throw "type error: " + type->get_name() + " has no field " + v_iter->first->get_string();
       }
       string val = render_const_value(out, name, field_type, v_iter->second);
-      indent(out) << name << ".";
-      out << v_iter->first->get_string() << " = " << val << ";" << endl;
+      out << endl;
+      indent(out) << ".." << v_iter->first->get_string() << " = " << val;
     }
-    out << endl;
+    indent_down();
+    out << ";" << endl;
   } else if (type->is_map()) {
     if (!defval) {
       out << type_name(type) << " ";
@@ -682,7 +684,7 @@ string t_dart_generator::render_const_value(ofstream& out,
     case t_base_type::TYPE_BOOL:
       render << ((value->get_integer() > 0) ? "true" : "false");
       break;
-    case t_base_type::TYPE_BYTE:
+    case t_base_type::TYPE_I8:
     case t_base_type::TYPE_I16:
     case t_base_type::TYPE_I32:
     case t_base_type::TYPE_I64:
@@ -1355,7 +1357,7 @@ std::string t_dart_generator::get_dart_type_string(t_type* type) {
     case t_base_type::TYPE_BOOL:
       return "TType.BOOL";
       break;
-    case t_base_type::TYPE_BYTE:
+    case t_base_type::TYPE_I8:
       return "TType.BYTE";
       break;
     case t_base_type::TYPE_I16:
@@ -1815,7 +1817,7 @@ void t_dart_generator::generate_deserialize_field(ofstream& out, t_field* tfield
       case t_base_type::TYPE_BOOL:
         out << "readBool();";
         break;
-      case t_base_type::TYPE_BYTE:
+      case t_base_type::TYPE_I8:
         out << "readByte();";
         break;
       case t_base_type::TYPE_I16:
@@ -1997,7 +1999,7 @@ void t_dart_generator::generate_serialize_field(ofstream& out, t_field* tfield, 
       case t_base_type::TYPE_BOOL:
         out << "writeBool(" << name << ");";
         break;
-      case t_base_type::TYPE_BYTE:
+      case t_base_type::TYPE_I8:
         out << "writeByte(" << name << ");";
         break;
       case t_base_type::TYPE_I16:
@@ -2168,7 +2170,7 @@ string t_dart_generator::base_type_name(t_base_type* type) {
     }
   case t_base_type::TYPE_BOOL:
     return "bool";
-  case t_base_type::TYPE_BYTE:
+  case t_base_type::TYPE_I8:
   case t_base_type::TYPE_I16:
   case t_base_type::TYPE_I32:
   case t_base_type::TYPE_I64:
@@ -2204,7 +2206,7 @@ string t_dart_generator::declare_field(t_field* tfield, bool init) {
       case t_base_type::TYPE_BOOL:
         result += " = false";
         break;
-      case t_base_type::TYPE_BYTE:
+      case t_base_type::TYPE_I8:
       case t_base_type::TYPE_I16:
       case t_base_type::TYPE_I32:
       case t_base_type::TYPE_I64:
@@ -2284,7 +2286,7 @@ string t_dart_generator::type_to_enum(t_type* type) {
       return "TType.STRING";
     case t_base_type::TYPE_BOOL:
       return "TType.BOOL";
-    case t_base_type::TYPE_BYTE:
+    case t_base_type::TYPE_I8:
       return "TType.BYTE";
     case t_base_type::TYPE_I16:
       return "TType.I16";
