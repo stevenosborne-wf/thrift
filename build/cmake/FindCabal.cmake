@@ -18,13 +18,13 @@
 #
 
 
-#  ANT_FOUND - system has Ant
-#  Ant_EXECUTABLE - the Ant executable
+#  Cabal_FOUND - system has Cabal
+#  Cabal - the Cabal executable
 #
-# It will search the environment variable ANT_HOME if it is set
+# It will search the environment variable CABAL_HOME if it is set
 
 include(FindPackageHandleStandardArgs)
 
-find_program(Ant_EXECUTABLE NAMES ant PATHS $ENV{ANT_HOME}/bin)
-find_package_handle_standard_args(Ant DEFAULT_MSG Ant_EXECUTABLE)
-mark_as_advanced(Ant_EXECUTABLE)
+find_program(CABAL NAMES cabal PATHS $ENV{HOME}/.cabal/bin $ENV{CABAL_HOME}/bin)
+find_package_handle_standard_args(CABAL DEFAULT_MSG CABAL)
+mark_as_advanced(CABAL)
